@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Router Detail</title>
+
+    <style>
+        body {
+            background-color: lightsteelblue;
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: transparent;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #8faacb;
+        }
+
+        tr:nth-child(even) {
+            background-color: #b4c7e0;
+        }
+
+        a {
+            color: #263f8f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Router: {{ router.ip }}</h1>
+
+    <p>
+        <a href="{{ url_for('index') }}">
+            Back to Routers List
+        </a>
+    </p>
+
+    <h2>Latest Interface Status (3 Records)</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Interface</th>
+                <th>IP Address</th>
+                <th>Status</th>
+                <th>Protocol</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.timestamp }}</td>
+                <td>{{ row.interface }}</td>
+                <td>{{ row.ip_address }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.proto }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">
+                    No interface status data found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

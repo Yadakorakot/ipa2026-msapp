@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Routers</title>
+    <style>
+        body {
+            background-color: lightsteelblue;
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+        input {
+            padding: 7px;
+            margin: 5px;
+        }
+        button {
+            padding: 7px 12px;
+            cursor: pointer;
+        }
+        li {
+            margin: 12px 0;
+        }
+        a {
+            color: #263f8f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Register Router</h1>
+
+    <form action="{{ url_for('add_router') }}" method="POST">
+        IP:
+        <input type="text" name="ip" required>
+
+        Username:
+        <input type="text" name="username" required>
+
+        Password:
+        <input type="password" name="password" required>
+
+        <button type="submit">Add</button>
+    </form>
+
+    <h1>Routers List</h1>
+
+    <ul>
+        {% for router in routers %}
+        <li>
+            <a href="{{ url_for('router_detail', ip=router.ip) }}">
+                {{ router.ip }}
+            </a>
+            - {{ router.username }}
+
+            <form
+                action="{{ url_for('delete_router', ip=router.ip) }}"
+                method="POST"
+                style="display:inline;"
+            >
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% else %}
+        <li>No routers registered.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
