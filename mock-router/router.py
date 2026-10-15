@@ -1,7 +1,5 @@
-
 import socket
 import threading
-import time
 import paramiko
 
 HOST = "0.0.0.0"
@@ -12,11 +10,15 @@ PASSWORD = "lab123"
 
 PROMPT = "MockRouter#"
 
-INTERFACES = """Interface              IP-Address      OK? Method Status                Protocol
-GigabitEthernet0/0      192.168.198.138 YES manual up                    up
-GigabitEthernet0/1      unassigned      YES unset  administratively down down
-GigabitEthernet0/2      unassigned      YES unset  administratively down down
-"""
+INTERFACES = (
+    "Interface              IP-Address      OK? Method Status"
+    "                Protocol\n"
+    "GigabitEthernet0/0     192.168.198.138 YES manual up"
+    "                    up\n"
+    "GigabitEthernet0/1     unassigned      YES unset  administratively down down\n"
+    "GigabitEthernet0/2     unassigned      YES unset  administratively down down\n"
+)
+
 
 class SSHServer(paramiko.ServerInterface):
 
@@ -43,6 +45,7 @@ class SSHServer(paramiko.ServerInterface):
         self.shell_event.set()
         return True
 
+
 def handle_client(client, host_key):
     transport = None
 
@@ -61,8 +64,7 @@ def handle_client(client, host_key):
             return
 
         channel.send(
-            ("\r\nWelcome to Mock Cisco Router\r\n"
-             + PROMPT + " ").encode()
+            ("\r\nWelcome to Mock Cisco Router\r\n" + PROMPT + " ").encode()
         )
 
         buffer = ""
@@ -91,28 +93,29 @@ def handle_client(client, host_key):
                         response = "\r\n" + PROMPT + " "
 
                     elif command.startswith("terminal "):
-                        response = (
-                            "\r\n" + command + "\r\n"
-                            + PROMPT + " "
-                        )
+                        response = "\r\n" + command + "\r\n" + PROMPT + " "
 
                     elif command == "show ip interface brief":
                         response = (
-                            "\r\n" + command + "\r\n"
-                            + INTERFACES + "\r\n"
-                            + PROMPT + " "
+                            "\r\n"
+                            + command
+                            + "\r\n"
+                            + INTERFACES
+                            + "\r\n"
+                            + PROMPT
+                            + " "
                         )
 
                     elif command == "show version":
                         response = (
                             "\r\nCisco IOS Software (Mock Lab)\r\n"
-                            + PROMPT + " "
+                            + PROMPT
+                            + " "
                         )
 
                     else:
                         response = (
-                            "\r\n% Invalid input detected\r\n"
-                            + PROMPT + " "
+                            "\r\n% Invalid input detected\r\n" + PROMPT + " "
                         )
 
                     channel.send(response.encode())
@@ -132,6 +135,7 @@ def handle_client(client, host_key):
         else:
             client.close()
 
+
 def main():
     host_key = paramiko.RSAKey.generate(2048)
 
@@ -140,24 +144,16 @@ def main():
     sock.bind((HOST, PORT))
     sock.listen(10)
 
-    print(
-        f"Mock Cisco SSH running on port {PORT}",
-        flush=True
-    )
+    print(f"Mock Cisco SSH running on port {PORT}", flush=True)
 
     try:
         while True:
             client, address = sock.accept()
 
-            print(
-                f"Connection from {address}",
-                flush=True
-            )
+            print(f"Connection from {address}", flush=True)
 
             threading.Thread(
-                target=handle_client,
-                args=(client, host_key),
-                daemon=True
+                target=handle_client, args=(client, host_key), daemon=True
             ).start()
 
     except KeyboardInterrupt:
@@ -165,6 +161,7 @@ def main():
 
     finally:
         sock.close()
+
 
 if __name__ == "__main__":
     main()

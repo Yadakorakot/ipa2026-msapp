@@ -5,6 +5,7 @@ from bson import json_util
 from producer import produce
 from database import get_router_info
 
+
 def scheduler():
     INTERVAL = 10.0
     next_run = time.monotonic()
@@ -14,20 +15,14 @@ def scheduler():
 
     while True:
         now = time.time()
-        now_str = time.strftime(
-            "%Y-%m-%d %H:%M:%S",
-            time.localtime(now)
-        )
+        now_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now))
         ms = int((now % 1) * 1000)
 
         print(f"[{now_str}.{ms:03d}] run #{count}", flush=True)
 
         try:
             for data in get_router_info():
-                router_data = {
-                    "ip": data["ip"],
-                    "username": data["username"]
-                }
+                router_data = {"ip": data["ip"], "username": data["username"]}
 
                 body_bytes = json_util.dumps(router_data).encode("utf-8")
 
@@ -41,6 +36,7 @@ def scheduler():
         count += 1
         next_run += INTERVAL
         time.sleep(max(0.0, next_run - time.monotonic()))
+
 
 if __name__ == "__main__":
     scheduler()

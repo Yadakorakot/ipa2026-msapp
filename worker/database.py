@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from datetime import datetime, timezone
 import os
 
+
 def save_interface_status(router_ip, interfaces):
     MONGO_URI = os.getenv("MONGO_URI")
     DB_NAME = os.getenv("DB_NAME", "ipa2026")
@@ -13,7 +14,7 @@ def save_interface_status(router_ip, interfaces):
     data = {
         "router_ip": router_ip,
         "timestamp": datetime.now(timezone.utc),
-        "interfaces": interfaces
+        "interfaces": interfaces,
     }
 
     collection.insert_one(data)

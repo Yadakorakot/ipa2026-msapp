@@ -2,6 +2,7 @@ import os
 import json
 from router_client import get_interfaces
 
+
 def callback(ch, method, props, body):
     job = json.loads(body.decode())
 

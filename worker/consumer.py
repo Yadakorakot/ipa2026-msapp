@@ -6,6 +6,7 @@ from callback import callback
 user = os.getenv("RABBITMQ_DEFAULT_USER", "admin")
 pwd = os.getenv("RABBITMQ_DEFAULT_PASS", "rabbitmq")
 
+
 def consume(host):
     for attempt in range(10):
         try:
@@ -26,12 +27,11 @@ def consume(host):
     ch.queue_declare(queue="router_jobs")
     ch.basic_qos(prefetch_count=1)
     ch.basic_consume(
-        queue="router_jobs",
-        on_message_callback=callback,
-        auto_ack=True
+        queue="router_jobs", on_message_callback=callback, auto_ack=True
     )
     print("Waiting for messages...", flush=True)
     ch.start_consuming()
+
 
 if __name__ == "__main__":
     consume("localhost")
