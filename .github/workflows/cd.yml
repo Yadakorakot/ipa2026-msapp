@@ -1,0 +1,50 @@
+
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, Linux, X64]
+    environment: production
+
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create .env
+        env:
+          MONGO_USER: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          RABBIT_USER: ${{ secrets.RABBITMQ_USER }}
+          RABBIT_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+        run: |
+          {
+            printf 'MONGO_INITDB_ROOT_USERNAME=%s\n' "$MONGO_USER"
+            printf 'MONGO_INITDB_ROOT_PASSWORD=%s\n' "$MONGO_PASSWORD"
+            printf 'RABBITMQ_USER=%s\n' "$RABBIT_USER"
+            printf 'RABBITMQ_PASSWORD=%s\n' "$RABBIT_PASSWORD"
+          } > .env
+          chmod 600 .env
+
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose -p ipa2026-prod -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --no-build --scale worker=3
+          docker compose -p ipa2026-prod -f docker-compose.yml -f docker-compose.prod.yml ps
