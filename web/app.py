@@ -49,9 +49,8 @@ def router_detail(ip):
     if router is None:
         return "Router not found", 404
 
-    # เอาข้อมูลที่ตรวจสอบล่าสุดเพียง 3 ครั้ง
     records = list(
-        interface_status.find({"router_ip": ip}).sort("timestamp", -1).limit(3)
+        interface_status.find({"router_ip": ip}).sort("timestamp", -1).limit(5)
     )
 
     rows = []
